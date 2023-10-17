@@ -14,26 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.spi.web;
+package com.alipay.sofa.ark.bootstrap;
+
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
- * Fetch embed tomcat container in ark
+ * Used to collect classpath of java agent.
  *
  * @author qilong.zql
  * @since 0.6.0
  */
-public interface EmbeddedServerService<T> {
-    /**
-     * get embed tomcat
-     * @return
-     */
-    T getEmbedServer();
+public class AgentClassLoader extends URLClassLoader {
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
 
-    /**
-     * set embed tomcat.
-     * Once web container instance (e.g. Tomcat, Netty) set to this EmbeddedServerService, it is usually can not be modified!
-     *
-     * @param container
-     */
-    void setEmbedServer(T container);
+    public AgentClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+    }
 }

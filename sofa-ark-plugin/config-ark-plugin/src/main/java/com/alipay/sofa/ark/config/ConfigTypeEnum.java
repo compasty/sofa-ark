@@ -14,23 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.ark.container.service.classloader;
-
-import java.net.URL;
-import java.net.URLClassLoader;
+package com.alipay.sofa.ark.config;
 
 /**
- * Used to collect classpath of java agent.
- *
- * @author qilong.zql
- * @since 0.6.0
+ * @author zsk
+ * @version $Id: ConfigTypeEnum.java, v 0.1 2023年09月28日 17:16 zsk Exp $
  */
-public class AgentClassLoader extends URLClassLoader {
-    static {
-        ClassLoader.registerAsParallelCapable();
-    }
+public enum ConfigTypeEnum {
+    zookeeper, apollo, ;
 
-    public AgentClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+    public static ConfigTypeEnum getByNameWithDefault(String name, ConfigTypeEnum defaultValue) {
+        for (ConfigTypeEnum configTypeEnum : ConfigTypeEnum.values()) {
+            if (configTypeEnum.name().equalsIgnoreCase(name)) {
+                return configTypeEnum;
+            }
+        }
+        return defaultValue;
     }
 }

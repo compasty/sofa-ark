@@ -37,13 +37,18 @@ public class ContainerClassLoader extends URLClassLoader {
 
     private ClassLoader         exportClassLoader;
 
-    public ContainerClassLoader(URL[] urls, ClassLoader parent) {
+    private ClassLoader         agentClassLoader;
+
+    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader agentClassLoader) {
         super(urls, parent);
+        this.agentClassLoader = agentClassLoader;
     }
 
-    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader exportClassLoader) {
+    public ContainerClassLoader(URL[] urls, ClassLoader parent, ClassLoader exportClassLoader,
+                                ClassLoader agentClassLoader) {
         super(urls, parent);
         this.exportClassLoader = exportClassLoader;
+        this.agentClassLoader = agentClassLoader;
     }
 
     @Override
@@ -54,10 +59,40 @@ public class ContainerClassLoader extends URLClassLoader {
             if (clazz != null) {
                 return clazz;
             }
-            return super.loadClass(name, resolve);
+            clazz = resolveContainerClass(name, resolve);
+            if (clazz != null) {
+                return clazz;
+            }
+            return resolveAgentClass(name);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
+    }
+
+    public Class<?> resolveContainerClass(String name, boolean resolve) {
+        try {
+            return super.loadClass(name, resolve);
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        return null;
+    }
+
+    /**
+     * Load agent class
+     *
+     * @param name
+     * @return
+     */
+    public Class<?> resolveAgentClass(String name) {
+        try {
+            if (agentClassLoader != null) {
+                return agentClassLoader.loadClass(name);
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        return null;
     }
 
     /**
