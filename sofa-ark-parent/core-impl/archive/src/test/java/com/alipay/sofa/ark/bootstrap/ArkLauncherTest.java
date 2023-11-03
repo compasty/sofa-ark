@@ -94,7 +94,7 @@ public class ArkLauncherTest {
         } catch (Exception e){
             Assert.assertTrue("loadClass class failed ",false);
         }
-
+        Assert.assertThrows(ClassNotFoundException.class, () -> classLoader.loadClass("NotExistClass"));
     }
 
     protected boolean isNestedArchive(Archive.Entry entry) {
