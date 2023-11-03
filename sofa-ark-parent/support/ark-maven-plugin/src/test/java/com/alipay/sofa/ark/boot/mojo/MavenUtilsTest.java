@@ -16,30 +16,74 @@
  */
 package com.alipay.sofa.ark.boot.mojo;
 
+import com.alipay.sofa.ark.tools.ArtifactItem;
 import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * @author yan (yanhuai.yh@antfin.com) 2023/10/17 2:25 下午
- * @since
- **/
+import static com.alipay.sofa.ark.boot.mojo.MavenUtils.*;
+import static org.junit.Assert.assertEquals;
+
 public class MavenUtilsTest {
 
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() {
+    }
+
     @Test
-    public void testRootProject() {
-        Assert.assertTrue(MavenUtils.isRootProject(null));
-        Assert.assertNull(MavenUtils.getRootProject(null));
-        MavenProject project = new MavenProject();
-        Assert.assertTrue(MavenUtils.isRootProject(project));
-        MavenProject parentProject1 = new MavenProject();
-        File f = new File(this.getClass().getClassLoader().getResource("test-jar.jar").getFile());
-        parentProject1.setFile(f);
-        project.setParent(parentProject1);
-        Assert.assertFalse(MavenUtils.isRootProject(project));
-        Assert.assertTrue(MavenUtils.isRootProject(parentProject1));
-        Assert.assertEquals(MavenUtils.getRootProject(project), parentProject1);
+    public void testIsRootProject() {
+
+        assertEquals(true, isRootProject(null));
+        MavenProject parentMavenProject = new MavenProject();
+        parentMavenProject.setFile(new File("./a"));
+        MavenProject mavenProject = new MavenProject();
+        mavenProject.setParent(parentMavenProject);
+        assertEquals(false, isRootProject(mavenProject));
+        parentMavenProject.setFile(null);
+        assertEquals(true, isRootProject(mavenProject));
+        assertEquals(null, getRootProject(null));
+    }
+
+    @Test
+    public void testConvert() {
+
+        assertEquals(new HashSet<>(), convert(""));
+        assertEquals(new HashSet<>(), convert("\n"));
+        assertEquals(new HashSet<>(), convert("\n\r"));
+        assertEquals(new HashSet<>(), convert("\n\r"));
+        assertEquals(new HashSet<>(), convert("a\na"));
+
+        Set<ArtifactItem> artifactItems = new HashSet<>();
+        ArtifactItem artifactItem = new ArtifactItem();
+        artifactItem.setGroupId("org.springframework.boot");
+        artifactItem.setArtifactId("spring-boot");
+        artifactItem.setType("jar");
+        artifactItem.setVersion("2.7.14");
+        artifactItem.setScope("provided");
+        artifactItems.add(artifactItem);
+        artifactItem = new ArtifactItem();
+        artifactItem.setGroupId("org.springframework");
+        artifactItem.setArtifactId("spring-jcl");
+        artifactItem.setType("jar");
+        artifactItem.setVersion("5.3.29");
+        artifactItem.setScope("provided");
+        artifactItem.setClassifier("ark-biz");
+        artifactItems.add(artifactItem);
+
+        assertEquals(
+            artifactItems,
+            convert("[INFO] com.alipay.sofa:sofa-ark-springboot-starter:jar:2.2.4-SNAPSHOT\n"
+                    + "[INFO] +- org.springframework.boot:spring-boot:jar:2.7.14:provided\n"
+                    + "[INFO] |  |  \\- org.springframework:spring-jcl:jar:ark-biz:5.3.29:provided\n"
+                    + "[INFO] |  \\- org.springframework:spring-context:jar:5.3.29"));
     }
 }
