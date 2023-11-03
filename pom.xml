@@ -185,6 +185,12 @@
                 <version>${jacoco.maven.plugin}</version>
                 <configuration>
                     <skip>false</skip>
+                    <!-- this configuration affects all goals -->
+                    <excludes>
+                        <exclude>com/alipay/sofa/ark/config/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/config/util/*.class</exclude>
+                        <exclude>com/alipay/sofa/ark/config/zk/*.class</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -235,6 +241,12 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
