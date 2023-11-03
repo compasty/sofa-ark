@@ -59,40 +59,21 @@ public class ContainerClassLoader extends URLClassLoader {
             if (clazz != null) {
                 return clazz;
             }
-            clazz = resolveContainerClass(name, resolve);
-            if (clazz != null) {
-                return clazz;
-            }
-            return resolveAgentClass(name);
+            return resolveClass(name, resolve);
         } finally {
             Handler.setUseFastConnectionExceptions(false);
         }
     }
 
-    public Class<?> resolveContainerClass(String name, boolean resolve) {
+    public Class<?> resolveClass(String name, boolean resolve) throws ClassNotFoundException {
         try {
             return super.loadClass(name, resolve);
         } catch (ClassNotFoundException e) {
-            // ignore
-        }
-        return null;
-    }
-
-    /**
-     * Load agent class
-     *
-     * @param name
-     * @return
-     */
-    public Class<?> resolveAgentClass(String name) {
-        try {
             if (agentClassLoader != null) {
                 return agentClassLoader.loadClass(name);
             }
-        } catch (ClassNotFoundException e) {
-            // ignore
+            throw e;
         }
-        return null;
     }
 
     /**
